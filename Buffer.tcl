@@ -14,19 +14,6 @@ set tf [open out.tr w]
 $ns trace-all $tf
 $ns use-newtrace
 
-#Define a 'finish' procedure
-proc finish {} {
-        global ns nf tf
-        $ns flush-trace
-        #Close the NAM trace file
-        close $nf
-        #Close the Trace file
-        close $tf
-        #Execute NAM on the trace file
-        exec nam out.nam &
-        exit 0
-}
-
 
 #Create 12 nodes
 for {set i 0} {$i < 12} {incr i} {
@@ -49,22 +36,25 @@ $ns duplex-link $n9 $n8 2Mb 10ms FQ
 $ns rtproto Session
 
 #Set Queue Size of link (n2-n3) to 10
-#$ns queue-limit $n2 $n3 10
+$ns queue-limit $n1 $n0 10
+$ns queue-limit $n5 $n4 10
+$ns queue-limit $n9 $n8 10
 
 #Give node position (for NAM)
 $ns duplex-link-op $n2 $n1 orient right-down
 $ns duplex-link-op $n3 $n1 orient right-up
 $ns duplex-link-op $n1 $n0 orient right
-$ns duplex-link-op $n6 $n5 orient right-down
-$ns duplex-link-op $n7 $n5 orient right-up
-$ns duplex-link-op $n5 $n4 orient right
-$ns duplex-link-op $n10 $n9 orient right-down
-$ns duplex-link-op $n11 $n9 orient right-up
-$ns duplex-link-op $n9 $n8 orient right
+#$ns duplex-link-op $n6 $n5 orient right-down
+#$ns duplex-link-op $n7 $n5 orient right-up
+#$ns duplex-link-op $n5 $n4 orient right
+#$ns duplex-link-op $n10 $n9 orient right-down
+#$ns duplex-link-op $n11 $n9 orient right-up
+#$ns duplex-link-op $n9 $n8 orient right
 
 #Monitor the queue for link (n2-n3). (for NAM)
-#$ns duplex-link-op $n2 $n3 queuePos 0.5
-
+$ns duplex-link-op $n1 $n0 queuePos 0.5
+$ns duplex-link-op $n5 $n4 queuePos 0.5
+$ns duplex-link-op $n9 $n8 queuePos 0.5
 
 #Setup a TCP connection
 set tcp1 [new Agent/TCP]
@@ -182,6 +172,22 @@ $ns at 10.0 "finish"
 #puts "CBR packet size = [$cbr3 set packet_size_]"
 #puts "CBR interval = [$cbr3 set interval_]"
 
+#Define a 'finish' procedure
+proc finish {} {
+        global ns nf tf
+        $ns flush-trace
+        #Close the NAM trace file
+        close $nf
+        #Close the Trace file
+        close $tf
+        #Execute NAM on the trace file
+        exec nam out.nam &
+	exec gawk -f throughput.awk out.tr > throughput.tr
+	exec gnuplot Buffer.gp &
+        exit 0
+}
+
 #Run the simulation
 $ns run
+
 
