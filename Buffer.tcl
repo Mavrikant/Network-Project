@@ -159,7 +159,7 @@ $ns at 6.0 "$cbr3 stop"
 #$ns at 4.5 "$ns detach-agent $n4 $tcp2 ; $ns detach-agent $n7 $sink2"
 #$ns at 4.5 "$ns detach-agent $n8 $tcp3 ; $ns detach-agent $n11 $sink3"
 
-#Call the finish procedure after 5 seconds of simulation time
+#Call the finish procedure after 10 seconds of simulation time
 $ns at 10.0 "finish"
 
 #Print CBR packet size and interval
