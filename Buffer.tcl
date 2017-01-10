@@ -12,6 +12,7 @@ $ns namtrace-all $nf
 #Open the Trace file
 set tf [open out.tr w]
 $ns trace-all $tf
+$ns use-newtrace
 
 #Define a 'finish' procedure
 proc finish {} {
@@ -33,15 +34,15 @@ for {set i 0} {$i < 12} {incr i} {
 }
 
 #Create links between the nodes
-$ns duplex-link $n2 $n1 2Mb 19ms DropTail
-$ns duplex-link $n3 $n1 2Mb 8ms DropTail
-$ns duplex-link $n1 $n0 2Mb 16ms DropTail
-$ns duplex-link $n6 $n5 2Mb 19ms RED
-$ns duplex-link $n7 $n5 2Mb 8ms RED
-$ns duplex-link $n5 $n4 2Mb 16ms RED
-$ns duplex-link $n10 $n9 2Mb 19ms FQ
-$ns duplex-link $n11 $n9 2Mb 8ms FQ
-$ns duplex-link $n9 $n8 2Mb 16ms FQ
+$ns duplex-link $n2 $n1 2Mb 10ms DropTail
+$ns duplex-link $n3 $n1 2Mb 10ms DropTail
+$ns duplex-link $n1 $n0 2Mb 10ms DropTail
+$ns duplex-link $n6 $n5 2Mb 10ms RED
+$ns duplex-link $n7 $n5 2Mb 10ms RED
+$ns duplex-link $n5 $n4 2Mb 10ms RED
+$ns duplex-link $n10 $n9 2Mb 10ms FQ
+$ns duplex-link $n11 $n9 2Mb 10ms FQ
+$ns duplex-link $n9 $n8 2Mb 10ms FQ
 
 #Tell the simulator to use dynamic routing
 #$ns rtproto DV $n0 $n1 $n2 $n3 $n4 $n5
@@ -142,20 +143,20 @@ $cbr3 set random_ false
 
 
 #Schedule events for the CBR and FTP agents
-$ns at 0.1 "$cbr1 start"
-$ns at 0.1 "$ftp1 start"
-$ns at 4.5 "$ftp1 stop"
-$ns at 4.5 "$cbr1 stop"
+$ns at 0.0 "$cbr1 start"
+$ns at 3.0 "$ftp1 start"
+$ns at 9.0 "$ftp1 stop"
+$ns at 6.0 "$cbr1 stop"
 
-$ns at 0.1 "$cbr2 start"
-$ns at 0.1 "$ftp2 start"
-$ns at 4.5 "$ftp2 stop"
-$ns at 4.5 "$cbr2 stop"
+$ns at 0.0 "$cbr2 start"
+$ns at 3.0 "$ftp2 start"
+$ns at 9.0 "$ftp2 stop"
+$ns at 6.0 "$cbr2 stop"
 
-$ns at 0.1 "$cbr3 start"
-$ns at 0.1 "$ftp3 start"
-$ns at 4.5 "$ftp3 stop"
-$ns at 4.5 "$cbr3 stop"
+$ns at 0.0 "$cbr3 start"
+$ns at 3.0 "$ftp3 start"
+$ns at 9.0 "$ftp3 stop"
+$ns at 6.0 "$cbr3 stop"
 
 #hat kesilip acilmasi
 #$ns rtmodel-at 1.0 down $n3 $n1
@@ -164,22 +165,22 @@ $ns at 4.5 "$cbr3 stop"
 #$ns rtmodel-at 4.0 up $n2
 
 #Detach tcp and sink agents (not really necessary)
-$ns at 4.5 "$ns detach-agent $n0 $tcp1 ; $ns detach-agent $n3 $sink1"
-$ns at 4.5 "$ns detach-agent $n4 $tcp2 ; $ns detach-agent $n7 $sink2"
-$ns at 4.5 "$ns detach-agent $n8 $tcp3 ; $ns detach-agent $n11 $sink3"
+#$ns at 4.5 "$ns detach-agent $n0 $tcp1 ; $ns detach-agent $n3 $sink1"
+#$ns at 4.5 "$ns detach-agent $n4 $tcp2 ; $ns detach-agent $n7 $sink2"
+#$ns at 4.5 "$ns detach-agent $n8 $tcp3 ; $ns detach-agent $n11 $sink3"
 
 #Call the finish procedure after 5 seconds of simulation time
-$ns at 5.0 "finish"
+$ns at 10.0 "finish"
 
 #Print CBR packet size and interval
-puts "CBR packet size = [$cbr1 set packet_size_]"
-puts "CBR interval = [$cbr1 set interval_]"
+#puts "CBR packet size = [$cbr1 set packet_size_]"
+#puts "CBR interval = [$cbr1 set interval_]"
 
-puts "CBR packet size = [$cbr2 set packet_size_]"
-puts "CBR interval = [$cbr2 set interval_]"
+#puts "CBR packet size = [$cbr2 set packet_size_]"
+#puts "CBR interval = [$cbr2 set interval_]"
 
-puts "CBR packet size = [$cbr3 set packet_size_]"
-puts "CBR interval = [$cbr3 set interval_]"
+#puts "CBR packet size = [$cbr3 set packet_size_]"
+#puts "CBR interval = [$cbr3 set interval_]"
 
 #Run the simulation
 $ns run
