@@ -1,107 +1,88 @@
 BEGIN {
-
 	     recvdSize = 0
-
 	     startTime = 1e6
-
 	     stopTime = 0
-
 	}
-
-	 
-
 	{
+           event = $1
+           time = $2
+           flow_id = $8
+           pkt_id = $12
+           pkt_size = $6
+           flow_t = $5
+           src = $3
+           dst = $4
+           level = "AGT"
 
-	     # Trace line format: normal
-
-	     if ($2 != "-t") {
-
-	           event = $1
-
-	           time = $2
-
-	           if (event == "+" || event == "-") node_id = $3
-
-	           if (event == "r" || event == "d") node_id = $4
-
-	           flow_id = $8
-
-	           pkt_id = $12
-
-	           pkt_size = $6
-
-	           flow_t = $5
-
-	           level = "AGT"
-
+	# DropTail TCP
+	if (level == "AGT" && event == "-" && src == 1 && dst == 0 && flow_t == "tcp" && pkt_size>= 50) {
+		droptail_tcp[int(time*10+1)]+=pkt_size
 	     }
 
-	     # Trace line format: new
-
-#	     if ($2 == "-t") {
-#
-#	           event = $1
-#
-#	           time = $3
-#
-#	           node_id = $5
-
-#	           flow_id = $39
-
-#	           pkt_id = $41
-
-#	           pkt_size = $37
-
-#	           flow_t = $45
-#
-#	           level = $19
-
-#	     }
-
-	 
-
-	# Store start time
-
-	if (level == "AGT" && (event == "+" || event == "s") && pkt_size>= 512) {
-
-	  if (time < startTime) {
-
-	           startTime = time
-
-	           }
-
+	# DropTail UDP
+	if (level == "AGT" && event == "-" && src == 1 && dst == 0 && flow_t == "cbr" && pkt_size>= 50) {
+		droptail_udp[int(time*10+1)]+=pkt_size
 	     }
 
-	 
-
-	# Update total received packets' size and store packets arrival time
-
-	if (level == "AGT" && event == "r" && pkt_size >= 512) {
-
-	     if (time > stopTime) {
-
-	           stopTime = time
-
-	           }
-
-	     # Rip off the header
-
-	     hdr_size = pkt_size % 512
-
-	     pkt_size -= hdr_size
-
-	     # Store received packet's size
-
-	     recvdSize += pkt_size
-
+	# RED TCP
+	if (level == "AGT" && event == "-" && src == 5 && dst == 4 && flow_t == "tcp" && pkt_size>= 50) {
+		RED_tcp[int(time*10+1)]+=pkt_size
 	     }
+
+	# RED UDP
+	if (level == "AGT" && event == "-" && src == 5 && dst == 4 && flow_t == "cbr" && pkt_size>= 50) {
+		RED_udp[int(time*10+1)]+=pkt_size
+	     }
+
+	# FQ TCP
+	if (level == "AGT" && event == "-" && src == 9 && dst == 8 && flow_t == "tcp" && pkt_size>= 50) {
+		FQ_tcp[int(time*10+1)]+=pkt_size
+	     }
+
+	# FQ UDP
+	if (level == "AGT" && event == "-" && src == 9 && dst == 8 && flow_t == "cbr" && pkt_size>= 50) {
+		FQ_udp[int(time*10+1)]+=pkt_size
+	     }
+
 
 	}
-
-	 
 
 	END {
 
-	     printf("Average Throughput[kbps] = %.2f\t\tStartTime=%.2f\tStopTime=%.2f\n",(recvdSize/(stopTime-startTime))*(8/1000),startTime,stopTime)
+		for (i=1; i<=100; i++) {
+			print i",", droptail_tcp[i]",", droptail_udp[i]",", RED_tcp[i]",", RED_udp[i]",", FQ_tcp[i]",", FQ_udp[i]","
+		}
+
+
+
+#		print "DropTail TCP"
+#		for (i in droptail_tcp) {
+#			print i, droptail_tcp[i]
+#		}
+#
+#		print "DropTail UDP"
+#		for (i in droptail_udp) {
+#			print i, droptail_udp[i]
+#		}
+#
+#		print "RED TCP"
+#		for (i in RED_tcp) {
+#			print i, RED_tcp[i]
+#		}
+#
+#		print "RED UDP"
+#		for (i in RED_udp) {
+#			print i, RED_udp[i]
+#		}
+#
+#		print "FQ TCP"
+#		for (i in FQ_tcp) {
+#			print i, FQ_tcp[i]
+#		}
+#
+#		print "FQ UDP"
+#		for (i in FQ_udp) {
+#			print i, FQ_udp[i]
+#		}
 
 	}
